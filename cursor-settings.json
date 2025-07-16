@@ -1,0 +1,15 @@
+{
+  "mcp.servers": [
+    {
+      "name": "mcp-webanalyzer",
+      "command": ["uv", "run", "mcp-webanalyzer"],
+      "cwd": "/path/to/mcp-webanalyzer",
+      "env": {
+        "LOG_LEVEL": "INFO",
+        "PYTHONPATH": "/path/to/mcp-webanalyzer"
+      }
+    }
+  ],
+  "mcp.enabled": true,
+  "mcp.autoStart": true
+}

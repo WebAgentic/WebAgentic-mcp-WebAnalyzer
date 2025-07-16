@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "web-analyzer": {
+      "command": "uv",
+      "args": ["run", "web-analyzer-mcp"],
+      "cwd": "C:\\Users\\donghwi\\web-analyzer-mcp",
+      "env": {
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-analyzer-worker
+  namespace: web-analyzer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-analyzer-worker
+  template:
+    metadata:
+      labels:
+        app: web-analyzer-worker
+    spec:
+      containers:
+      - name: worker
+        image: web-analyzer-mcp:latest
+        command: ["python", "-m", "web_analyzer_mcp.worker"]
+        env:
+        - name: PYTHONPATH
+          value: "/app/src"
+        - name: REDIS_URL
+          value: "redis://redis:6379/0"
+        - name: CELERY_BROKER_URL
+          value: "redis://redis:6379/1"
+        - name: CELERY_RESULT_BACKEND
+          value: "redis://redis:6379/2"
+        envFrom:
+        - secretRef:
+            name: web-analyzer-secrets
+        - configMapRef:
+            name: web-analyzer-config
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: logs
+        persistentVolumeClaim:
+          claimName: logs-pvc
