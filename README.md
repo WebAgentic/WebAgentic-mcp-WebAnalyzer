@@ -1,3 +1,6 @@
+# web-analyzer-mcp
+고성능 웹 분석을 위한 엔터프라이즈급 MCP (Model Context Protocol) 서버입니다. FastMCP와 FastAPI를 기반으로 구축되었으며, 비동기 작업 처리, 캐싱, 모니터링 등 프로덕션 환경에 적합한 기능들을 제공합니다.
+
 # 🚀 MCP WebAnalyzer
 
 고성능 웹 분석을 위한 엔터프라이즈급 MCP (Model Context Protocol) 서버입니다. FastMCP와 FastAPI를 기반으로 구축되었으며, 비동기 작업 처리, 캐싱, 모니터링 등 프로덕션 환경에 적합한 기능들을 제공합니다.
