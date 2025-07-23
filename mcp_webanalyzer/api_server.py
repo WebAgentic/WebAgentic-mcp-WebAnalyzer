@@ -474,7 +474,7 @@ async def call_mcp_tool(
 def main():
     """Main entry point for the API server."""
     uvicorn.run(
-        "web_analyzer_mcp.api_server:app",
+        "mcp_webanalyzer.api_server:app",
         host=settings.host,
         port=settings.port,
         reload=settings.debug,

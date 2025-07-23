@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: web-analyzer
-  labels:
-    name: web-analyzer
-    app: web-analyzer-mcp
