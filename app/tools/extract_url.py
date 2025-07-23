@@ -1,4 +1,3 @@
-from app.api.mcp import mcp_tool
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
@@ -60,12 +59,27 @@ def ensure_url(url: str) -> str:
     return url
 
 
-@mcp_tool
 def extract_url(url: str):
-    urls = list(ensure_url(url.strip()))
+    """
+    Extract URLs and crawl for additional links.
+
+    This function processes the given URL, ensures it is valid, and crawls all
+    data at various depths from the provided URL. If any errors occur during this
+    process, it raises a ValueError with an appropriate error message.
+
+    Parameters:
+        url (str): The URL to process and crawl.
+
+    Returns:
+        list: A list of all crawled URLs.
+
+    Raises:
+        ValueError: If there is an error during the crawling or URL processing.
+    """
+    urls = ensure_url(url.strip())
 
     try:
-        processed_url = urls[0]
+        processed_url = urls
         all_urls = crawl_all_depth(processed_url)
         return all_urls
 

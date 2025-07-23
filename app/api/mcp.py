@@ -21,7 +21,7 @@ from app.models.mcp_models import (
     AsyncTask, TaskStatus, TaskResponse, ServerStatus, BridgeStatus,
     MCPErrorCodes, create_error_response, create_success_response
 )
-
+from app.tools import extract_url, build_output, summary_question
 logger = logging.getLogger(__name__)
 
 
@@ -38,40 +38,13 @@ class RPC(BaseModel):
     params: dict | None = None
 
 
-TOOLS: dict[str, callable] = {}
+TOOLS: dict[str, callable] = {"web_search":extract_url, "web_data":build_output,
+                              "web_qna":summary_question}
 
 
 def mcp_tool(fn):
     TOOLS[fn.__name__] = fn
     return fn
-
-
-# @mcp_tool
-# async def web_search(query: str, max_results: int = 5) -> str:
-#     """웹 검색 도구 - 제공된 쿼리로 웹 검색을 수행합니다"""
-#     logger.info(f"웹 검색 실행: {query}, 최대 결과 수: {max_results}")
-#
-#     try:
-#         # 여기서는 실제 검색 대신 예시 결과 반환
-#         # 실제 구현에서는 외부 검색 API를 호출해야 함
-#         results = [
-#             {
-#                 "title": f"검색 결과 {i+1}: {query}",
-#                 "url": f"https://example.com/result-{i+1}",
-#                 "snippet": f"{query}에 관한 검색 결과 {i+1}의 요약 내용입니다."
-#             } for i in range(min(max_results, 10))
-#         ]
-#
-#         # 결과 포매팅
-#         formatted_results = "\n\n".join(
-#             f"## {r['title']}\n{r['url']}\n{r['snippet']}"
-#             for r in results
-#         )
-#
-#         return f"### '{query}'에 대한 검색 결과:\n\n{formatted_results}"
-#     except Exception as e:
-#         logger.error(f"웹 검색 오류: {str(e)}")
-#         return f"검색 중 오류가 발생했습니다: {str(e)}"
 
 
 @mcp_router.post("/")
@@ -112,25 +85,45 @@ async def mcp_handler(
 
         elif method == "tools/list":
             meta = [
-
-
-            ]
-            meta = [
                 {"name": "web_search",
-                 "description": "웹 검색 및 RAG 기능 제공",
+                 "description": "웹 하위 페이지 추출",
                  "inputSchema": {
                      "type": "object",
                      "properties": {
-                         "query": {
+                         "url": {
                              "type": "string",
-                             "description": "사용자 질문"
+                             "description": "웹 url"
                          },
-                         "max_results": {
-                             "type": "integer",
-                             "description": "결과개수"
-                         }
                      }
                      }
+                 },
+                {"name": "web_data",
+                 "description": "웹 페이지 데이터화",
+                 "inputSchema": {
+                     "type": "object",
+                     "properties": {
+                         "url": {
+                             "type": "string",
+                             "description": "웹 url"
+                         },
+                     }
+                 }
+                 },
+                {"name": "web_qna",
+                 "description": "사용자가 url과 질문 2개를 입력하면 url 기반 질의응답 출력",
+                 "inputSchema": {
+                     "type": "object",
+                     "properties": {
+                         "url": {
+                             "type": "string",
+                             "description": "웹 url"
+                         },
+                         "question": {
+                             "type": "string",
+                             "description": "url 기반 질문"
+                         },
+                     }
+                 }
                  }
             ]
             return JSONResponse({"jsonrpc": "2.0", "id": rpc.id, "result": {"tools": meta}})
@@ -164,10 +157,7 @@ async def mcp_handler(
 
                 # 도구 실행 (비동기 함수는 await, 동기 함수는 to_thread.run_sync 사용)
                 func = TOOLS[name]
-                if asyncio.iscoroutinefunction(func):
-                    result = await func(**args)
-                else:
-                    result = await anyio.to_thread.run_sync(func, **args)
+                result = func(**args)
 
                 # 결과 포맷팅 및 반환
                 return JSONResponse({

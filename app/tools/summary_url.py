@@ -4,8 +4,6 @@ from bs4 import Comment, BeautifulSoup, Tag
 # from playwright.sync_api import sync_playwright
 from difflib import get_close_matches
 
-from app.api.mcp import mcp_tool
-
 import re
 import time
 
@@ -341,8 +339,22 @@ def dhkim_algorithm(html):
     return result
 
 
-@mcp_tool
 def build_output(url: str):
+    """
+    Builds processed output documents from a given URL.
+
+    This function takes a URL, ensures it is in a valid format, processes it to
+    build its HTML content, applies a specific algorithm to analyze the content,
+    and collects the results into a list of processed documents.
+
+    Args:
+        url: str
+            The input URL to process.
+
+    Returns:
+        list:
+            A list containing the analyzed documents generated from the given URL.
+    """
     urls = [check_ensure_url(url)]
     all_docs = []
     for processed_url in urls:
@@ -350,4 +362,4 @@ def build_output(url: str):
         result_v2 = dhkim_algorithm(html)
         all_docs.append(result_v2)
 
-    return all_docs
+    return all_docs[0]
