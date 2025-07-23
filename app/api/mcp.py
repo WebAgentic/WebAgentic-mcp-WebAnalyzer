@@ -9,7 +9,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request
 # from fastmcp import FastMCP, jsonrpc_http_handler
 import anyio, uuid, json
-
+import asyncio
 from app.core.config import settings
 from app.core.security import get_current_user, get_optional_user
 from app.core.redis import redis_manager
@@ -23,6 +23,7 @@ from app.models.mcp_models import (
 )
 
 logger = logging.getLogger(__name__)
+
 
 # MCP 라우터 생성
 mcp_router = APIRouter()
@@ -40,6 +41,39 @@ class RPC(BaseModel):
 TOOLS: dict[str, callable] = {}
 
 
+def mcp_tool(fn):
+    TOOLS[fn.__name__] = fn
+    return fn
+
+
+# @mcp_tool
+# async def web_search(query: str, max_results: int = 5) -> str:
+#     """웹 검색 도구 - 제공된 쿼리로 웹 검색을 수행합니다"""
+#     logger.info(f"웹 검색 실행: {query}, 최대 결과 수: {max_results}")
+#
+#     try:
+#         # 여기서는 실제 검색 대신 예시 결과 반환
+#         # 실제 구현에서는 외부 검색 API를 호출해야 함
+#         results = [
+#             {
+#                 "title": f"검색 결과 {i+1}: {query}",
+#                 "url": f"https://example.com/result-{i+1}",
+#                 "snippet": f"{query}에 관한 검색 결과 {i+1}의 요약 내용입니다."
+#             } for i in range(min(max_results, 10))
+#         ]
+#
+#         # 결과 포매팅
+#         formatted_results = "\n\n".join(
+#             f"## {r['title']}\n{r['url']}\n{r['snippet']}"
+#             for r in results
+#         )
+#
+#         return f"### '{query}'에 대한 검색 결과:\n\n{formatted_results}"
+#     except Exception as e:
+#         logger.error(f"웹 검색 오류: {str(e)}")
+#         return f"검색 중 오류가 발생했습니다: {str(e)}"
+
+
 @mcp_router.post("/")
 async def mcp_handler(
         request: Request,
@@ -49,6 +83,17 @@ async def mcp_handler(
     Host(Claude)에서 보내는 모든 MCP 요청을 처리합니다.
     """
     try:
+        # API 키 인증 검사
+        api_key = request.headers.get("x-api-key")
+        if not api_key or api_key not in settings.API_KEYS:
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": MCPErrorCodes.AUTHENTICATION_FAILED,
+                    "message": "인증 실패: 유효한 API 키가 필요합니다"
+                }
+            }, status_code=401)
+
         user = None
         payload = await request.json()
         rpc = RPC.model_validate(payload)
@@ -67,25 +112,81 @@ async def mcp_handler(
 
         elif method == "tools/list":
             meta = [
+
+
+            ]
+            meta = [
                 {"name": "web_search",
                  "description": "웹 검색 및 RAG 기능 제공",
                  "inputSchema": {
                      "type": "object",
                      "properties": {
-                         "param": {
-                             "type": "string"
-                         }}}}
-
+                         "query": {
+                             "type": "string",
+                             "description": "사용자 질문"
+                         },
+                         "max_results": {
+                             "type": "integer",
+                             "description": "결과개수"
+                         }
+                     }
+                     }
+                 }
             ]
             return JSONResponse({"jsonrpc": "2.0", "id": rpc.id, "result": {"tools": meta}})
         elif method == "tools/call":
+            # 도구 호출 시 API 키 인증 필요
+            api_key = request.headers.get("x-api-key")
+            if not api_key or api_key not in settings.API_KEYS:
+                return JSONResponse({
+                    "jsonrpc": "2.0", 
+                    "id": rpc.id,
+                    "error": {
+                        "code": MCPErrorCodes.AUTHENTICATION_FAILED, 
+                        "message": "인증 실패: 유효한 API 키가 필요합니다"
+                    }
+                }, status_code=401)
+
             args = rpc.params.get("arguments", {})
             name = rpc.params["name"]
-            if name not in TOOLS:
-                raise HTTPException(404, "tool not found")
-            result = await anyio.to_thread.run_sync(TOOLS[name], **args)
-            return JSONResponse({"jsonrpc": "2.0", "id": rpc.id,
-                                 "result": {"content": [{"type": "text", "text": result}]}})
+
+            # 등록된 도구 호출
+            try:
+                if name not in TOOLS:
+                    return JSONResponse({
+                        "jsonrpc": "2.0", 
+                        "id": rpc.id,
+                        "error": {
+                            "code": MCPErrorCodes.TOOL_NOT_FOUND, 
+                            "message": f"도구를 찾을 수 없음: {name}"
+                        }
+                    }, status_code=404)
+
+                # 도구 실행 (비동기 함수는 await, 동기 함수는 to_thread.run_sync 사용)
+                func = TOOLS[name]
+                if asyncio.iscoroutinefunction(func):
+                    result = await func(**args)
+                else:
+                    result = await anyio.to_thread.run_sync(func, **args)
+
+                # 결과 포맷팅 및 반환
+                return JSONResponse({
+                    "jsonrpc": "2.0", 
+                    "id": rpc.id,
+                    "result": {
+                        "content": [{"type": "text", "text": result}]
+                    }
+                })
+            except Exception as e:
+                logger.error(f"도구 실행 오류: {name}, {str(e)}")
+                return JSONResponse({
+                    "jsonrpc": "2.0", 
+                    "id": rpc.id,
+                    "error": {
+                        "code": MCPErrorCodes.INTERNAL_ERROR, 
+                        "message": f"도구 실행 오류: {str(e)}"
+                    }
+                }, status_code=500)
         elif method == "resources/list":
             return await handle_resources_list(request, user)
         elif method == "resources/read":
@@ -579,3 +680,4 @@ async def handle_initialized(notification: JSONRPCNotification):
     """초기화 완료 알림 처리"""
     logger.info("MCP 클라이언트 초기화 완료 알림 수신")
     return {"status": "acknowledged"}
+
