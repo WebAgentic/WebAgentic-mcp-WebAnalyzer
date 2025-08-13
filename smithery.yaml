@@ -1,0 +1,24 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({ command: 'python', args: ['-m', 'web_analyzer_mcp.server'], env: { OPENAI_API_KEY: config.openaiApiKey, ...(config.openaiModel ? { OPENAI_MODEL: config.openaiModel } : {} ) } })
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - openaiApiKey
+    properties:
+      openaiApiKey:
+        type: string
+        description: OpenAI API key
+      openaiModel:
+        type: string
+        default: gpt-3.5-turbo
+        description: OpenAI model to use
+  exampleConfig:
+    openaiApiKey: sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    openaiModel: gpt-4
