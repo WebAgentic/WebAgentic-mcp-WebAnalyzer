@@ -35,6 +35,14 @@ A powerful MCP (Model Context Protocol) server for intelligent web content analy
 - Chrome/Chromium browser (for Selenium)
 - OpenAI API key (for Q&A functionality)
 
+### Installing via Smithery
+
+To install web-analyzer-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@kimdonghwi94/web-analyzer-mcp):
+
+```bash
+npx -y @smithery/cli install @kimdonghwi94/web-analyzer-mcp --client claude
+```
+
 ### Install the Package
 
 ```bash
