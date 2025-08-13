@@ -1,0 +1,9 @@
+{
+  "name": "web-analyzer-mcp",
+  "version": "0.1.0",
+  "built": "2025-08-13T17:10:14.441Z",
+  "tools": [
+    "url_to_markdown",
+    "web_content_qna"
+  ]
+}
