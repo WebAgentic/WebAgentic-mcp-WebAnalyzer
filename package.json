@@ -1,0 +1,32 @@
+{
+  "name": "web-analyzer-mcp",
+  "version": "0.1.0",
+  "description": "A powerful MCP server for web content analysis and RAG",
+  "scripts": {
+    "start": "python -m web_analyzer_mcp.server",
+    "dev": "python -m web_analyzer_mcp.server",
+    "test": "npx @modelcontextprotocol/inspector python -m web_analyzer_mcp.server",
+    "install": "pip install -e .",
+    "build": "node scripts/build.js",
+    "lint": "python -m black web_analyzer_mcp/ && python -m flake8 web_analyzer_mcp/",
+    "typecheck": "python -m mypy web_analyzer_mcp/",
+    "clean": "rm -rf dist/ build/ *.egg-info/ dist-info.json"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "web-scraping",
+    "rag",
+    "ai",
+    "claude"
+  ],
+  "author": "kimdonghwi94",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kimdonghwi94/web-analyzer-mcp.git"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/inspector": "latest"
+  }
+}
