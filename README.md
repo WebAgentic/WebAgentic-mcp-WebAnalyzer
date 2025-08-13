@@ -1,259 +1,306 @@
-# 🚀 MCP WebAnalyzer
-
-고성능 웹 분석을 위한 엔터프라이즈급 MCP (Model Context Protocol) 서버입니다. FastMCP와 FastAPI를 기반으로 구축되었으며, 비동기 작업 처리, 캐싱, 모니터링 등 프로덕션 환경에 적합한 기능들을 제공합니다.
+# 🔍 Web Analyzer MCP
 
 <a href="https://glama.ai/mcp/servers/@kimdonghwi94/web-analyzer-mcp">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@kimdonghwi94/web-analyzer-mcp/badge" alt="WebAnalyzer MCP server" />
 </a>
 
-## ✨ 주요 기능
+A powerful MCP (Model Context Protocol) server for intelligent web content analysis and summarization. Built with FastMCP, this server provides smart web scraping, content extraction, and AI-powered question-answering capabilities.
 
-### 🔍 웹 분석 도구
-- **서브페이지 발견**: 웹사이트의 모든 링크와 서브페이지를 체계적으로 탐색
-- **페이지 요약**: AI 기반 웹페이지 내용 요약 및 핵심 정보 추출
-- **RAG 콘텐츠 추출**: 검색 증강 생성(RAG)을 위한 구조화된 콘텐츠 추출
+## ✨ Features
 
-### 🏗️ 엔터프라이즈 기능
-- **비동기 작업 처리**: Celery + Redis 기반 분산 작업 처리
-- **상태 저장**: Redis를 통한 캐싱 및 세션 관리
-- **외부 API 연동**: OpenAI/Anthropic API 통합 지원
-- **인증 및 보안**: JWT 토큰 및 API 키 기반 인증 시스템
-- **모니터링**: Prometheus 메트릭 및 구조화된 로깅
-- **실시간 모니터링**: Flower를 통한 Celery 작업 모니터링
+### 🎯 Core Tools
 
-## 📋 시스템 요구사항
+1. **`url_to_markdown`** - Extract and summarize web pages to markdown
+   - Analyzes content importance using custom algorithms
+   - Removes ads, navigation, and irrelevant content
+   - Keeps only essential information (tables, images, key text)
+   - Outputs structured markdown perfect for analysis
 
-### Windows 환경
-- **Windows 10/11** 또는 **Windows Server 2019+**
-- **Python 3.10+** 
-- **uv** (Python 패키지 관리자)
-- **Docker Desktop** (선택사항)
-- **Redis** (로컬 설치 또는 Docker)
+2. **`web_content_qna`** - AI-powered Q&A about web content
+   - Extracts relevant content sections from web pages
+   - Uses intelligent chunking and relevance matching
+   - Answers questions using OpenAI GPT models
 
-### 권장 사양
-- **CPU**: 4코어 이상
-- **메모리**: 8GB 이상
-- **저장공간**: 10GB 이상
+### 🚀 Key Features
 
-## 🚀 빠른 시작 (Windows)
+- **Smart Content Ranking**: Algorithm-based content importance scoring
+- **Essential Content Only**: Removes clutter, keeps what matters
+- **Multi-IDE Support**: Works with Claude Desktop, Cursor, VS Code, PyCharm
+- **Flexible Models**: Choose from GPT-3.5, GPT-4, GPT-4 Turbo, or GPT-5
 
-### 1. 환경 준비
+## 📦 Installation
 
-```powershell
-# Python 3.10+ 설치 확인
-python --version
+### Prerequisites
+- Python 3.10+
+- Chrome/Chromium browser (for Selenium)
+- OpenAI API key (for Q&A functionality)
 
-# uv 설치
-pip install uv
+### Install the Package
 
-# 프로젝트 클론
-git clone https://github.com/your-username/mcp-webanalyzer.git
-cd mcp-webanalyzer
-
-# 의존성 설치
-uv sync
+```bash
+pip install web-analyzer-mcp
 ```
 
-### 2. 환경 변수 설정
+### Or Install from Source
 
-```powershell
-# .env 파일 생성
-copy .env.example .env
-
-# 설정 파일 편집 (메모장 또는 VS Code)
-notepad .env
+```bash
+git clone https://github.com/kimdonghwi94/web-analyzer-mcp.git
+cd web-analyzer-mcp
+pip install -e .
 ```
 
-필수 설정 값들:
+### Modern Development with npm
+
+```bash
+# Clone and setup
+git clone https://github.com/kimdonghwi94/web-analyzer-mcp.git
+cd web-analyzer-mcp
+
+# Install dependencies (both Node.js and Python)
+npm install
+npm run install
+
+# Build the project
+npm run build
+
+# Test with MCP Inspector
+npm test
+
+# Start development server
+npm run dev
+```
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create a `.env` file or set environment variables:
+
 ```env
-# 서버 설정
-HOST=0.0.0.0
-PORT=8080
-
-# 보안 키 (반드시 변경!)
-SECRET_KEY=your-very-secure-secret-key-change-this-now
-API_KEY=your-secure-api-key-change-this-too
-
-# Redis 설정
-REDIS_URL=redis://localhost:6379/0
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-### 3. Redis 실행
+### IDE/Editor Integration
 
-#### Option A: Docker 사용
-```powershell
-docker run -d --name redis-server -p 6379:6379 redis:7-alpine
-```
+<details>
+<summary><b>Claude Desktop</b></summary>
 
-#### Option B: Windows용 Redis 설치
-1. [Redis Windows 릴리스](https://github.com/microsoftarchive/redis/releases) 다운로드
-2. 설치 후 서비스 시작
+Add to your Claude Desktop configuration file:
 
-### 4. 서버 실행
+**Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-```powershell
-# API 서버 실행
-uv run mcp-webanalyzer-api
-
-# 다른 터미널에서 워커 실행 (선택사항)
-uv run mcp-webanalyzer-worker
-```
-
-### 5. 테스트
-
-```powershell
-# 헬스 체크
-curl http://localhost:8080/health
-
-# API 테스트
-curl -X POST http://localhost:8080/mcp/tools/extract_page_summary ^
-  -H "X-API-Key: your-secure-api-key-change-this-too" ^
-  -H "Content-Type: application/json" ^
-  -d "{\"url\": \"https://example.com\"}"
-```
-
-## 🐳 Docker 실행 (Windows)
-
-### 1. Docker Desktop 설치
-[Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) 다운로드 및 설치
-
-### 2. 컨테이너 실행
-```powershell
-# 모든 서비스 시작
-docker-compose up -d
-
-# 서비스 상태 확인
-docker-compose ps
-
-# 로그 확인
-docker-compose logs -f web-analyzer-api
-```
-
-### 3. 접속 확인
-- **API 서버**: http://localhost:8080
-- **API 문서**: http://localhost:8080/docs
-- **Flower 모니터링**: http://localhost:5555
-- **헬스 체크**: http://localhost:8080/health
-
-## 🔧 Claude Desktop 연동
-
-### 1. 설정 파일 위치
-```
-%APPDATA%\Claude\claude_desktop_config.json
-```
-
-### 2. 설정 추가
 ```json
 {
   "mcpServers": {
     "web-analyzer": {
-      "command": "uv",
-      "args": ["run", "mcp-webanalyzer"],
-      "cwd": "C:\\Users\\{username}\\mcp-webanalyzer",
+      "command": "python",
+      "args": ["-m", "web_analyzer_mcp.server"],
       "env": {
-        "LOG_LEVEL": "INFO"
+        "OPENAI_API_KEY": "your_openai_api_key_here",
+        "OPENAI_MODEL": "gpt-3.5-turbo"
       }
     }
   }
 }
 ```
 
-### 3. 원격 서버 연동
+*Note: `OPENAI_MODEL` is optional - defaults to gpt-3.5-turbo if not specified*
+</details>
+
+<details>
+<summary><b>Cursor IDE</b></summary>
+
+Add to your Cursor settings (`File > Preferences > Settings > Extensions > MCP`):
+
 ```json
 {
-  "mcpServers": {
-    "web-analyzer-remote": {
+  "mcp.servers": {
+    "web-analyzer": {
       "command": "python",
-      "args": ["-m", "mcp_webanalyzer.mcp_client"],
-      "cwd": "C:\\Users\\{username}\\mcp-webanalyzer",
+      "args": ["-m", "web_analyzer_mcp.server"],
       "env": {
-        "API_BASE_URL": "http://localhost:8080",
-        "API_KEY": "your-secure-api-key-change-this-too"
+        "OPENAI_API_KEY": "your_openai_api_key_here",
+        "OPENAI_MODEL": "gpt-4"
       }
     }
   }
 }
 ```
 
-## 🎯 사용 예시
+*Note: `OPENAI_MODEL` is optional - defaults to gpt-3.5-turbo if not specified*
+</details>
 
-### 기본 웹 분석
+<details>
+<summary><b>Claude Code (VS Code Extension)</b></summary>
+
+Add to your VS Code settings.json:
+
+```json
+{
+  "claude-code.mcpServers": {
+    "web-analyzer": {
+      "command": "python",
+      "args": ["-m", "web_analyzer_mcp.server"],
+      "cwd": "${workspaceFolder}/web-analyzer-mcp",
+      "env": {
+        "OPENAI_API_KEY": "your_openai_api_key_here",
+        "OPENAI_MODEL": "gpt-4-turbo"
+      }
+    }
+  }
+}
+```
+
+*Note: `OPENAI_MODEL` is optional - defaults to gpt-3.5-turbo if not specified*
+</details>
+
+<details>
+<summary><b>PyCharm (with MCP Plugin)</b></summary>
+
+Create a run configuration in PyCharm:
+
+1. Go to `Run > Edit Configurations`
+2. Add new Python configuration:
+   - **Script path**: `/path/to/web_analyzer_mcp/server.py`
+   - **Parameters**: (leave empty)
+   - **Environment variables**:
+     ```
+     OPENAI_API_KEY=your_openai_api_key_here
+     OPENAI_MODEL=gpt-4o
+     ```
+   - **Working directory**: `/path/to/web-analyzer-mcp`
+
+*Note: `OPENAI_MODEL` is optional - defaults to gpt-3.5-turbo if not specified*
+
+Or use the external tool configuration:
+```xml
+<tool name="Web Analyzer MCP" description="Start Web Analyzer MCP Server" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false">
+  <exec>
+    <option name="COMMAND" value="python" />
+    <option name="PARAMETERS" value="-m web_analyzer_mcp.server" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+  </exec>
+</tool>
+```
+</details>
+
+## 🔨 Usage Examples
+
+### Basic Web Content Extraction
+
 ```python
-# 페이지 요약 추출
-result = extract_page_summary("https://example.com")
-
-# 서브페이지 발견
-links = discover_subpages("https://example.com", max_depth=2)
-
-# RAG용 콘텐츠 추출
-content = extract_content_for_rag("https://example.com")
+# Extract clean markdown from a web page
+result = url_to_markdown("https://example.com/article")
+print(result)
 ```
 
-### API 호출
-```powershell
-# 서브페이지 발견
-curl -X POST http://localhost:8080/mcp/tools/discover_subpages ^
-  -H "X-API-Key: your-api-key" ^
-  -H "Content-Type: application/json" ^
-  -d "{\"url\": \"https://example.com\", \"max_depth\": 2}"
+### Q&A about Web Content
+
+```python
+# Ask questions about web page content
+answer = web_content_qna(
+    url="https://example.com/documentation", 
+    question="What are the main features of this product?"
+)
+print(answer)
 ```
 
-## 📊 모니터링 및 관리
 
-### 로그 확인
-```powershell
-# 서비스 로그 (Docker)
-docker-compose logs -f web-analyzer-api
+## 🎛️ Tool Descriptions
 
-# 로컬 실행 로그
-Get-Content logs\app.log -Wait
+### `url_to_markdown`
+Converts web pages to clean markdown format with essential content extraction.
+
+**Parameters:**
+- `url` (string): The web page URL to analyze
+
+**Returns:** Clean markdown content with structured data preservation
+
+### `web_content_qna` 
+Answers questions about web page content using intelligent content analysis.
+
+**Parameters:**
+- `url` (string): The web page URL to analyze
+- `question` (string): Question about the page content
+
+**Returns:** AI-generated answer based on page content
+
+
+## 🏗️ Architecture
+
+### Content Extraction Pipeline
+
+1. **URL Validation** - Ensures proper URL format
+2. **HTML Fetching** - Uses Selenium for dynamic content
+3. **Content Parsing** - BeautifulSoup for HTML processing
+4. **Element Scoring** - Custom algorithm ranks content importance
+5. **Content Filtering** - Removes duplicates and low-value content
+6. **Markdown Conversion** - Structured output generation
+
+### Q&A Processing Pipeline
+
+1. **Content Chunking** - Intelligent text segmentation
+2. **Relevance Scoring** - Matches content to questions
+3. **Context Selection** - Picks most relevant chunks
+4. **Answer Generation** - OpenAI GPT integration
+
+## 🏗️ Project Structure
+
+```
+web-analyzer-mcp/
+├── web_analyzer_mcp/          # Main Python package
+│   ├── __init__.py           # Package initialization
+│   ├── server.py             # FastMCP server with tools
+│   ├── web_extractor.py      # Web content extraction engine
+│   └── rag_processor.py      # RAG-based Q&A processor
+├── scripts/                   # Build and utility scripts
+│   └── build.js              # Node.js build script
+├── README.md                 # English documentation
+├── README.ko.md              # Korean documentation
+├── package.json              # npm configuration and scripts
+├── pyproject.toml            # Python package configuration
+├── .env.example              # Environment variables template
+└── dist-info.json            # Build information (generated)
 ```
 
-### 메트릭 확인
-- **Prometheus 메트릭**: http://localhost:9090/metrics
-- **Flower 대시보드**: http://localhost:5555
+## 🛠️ Development
 
-### 성능 모니터링
-```powershell
-# 메모리 사용량 확인
-tasklist /fi "imagename eq python.exe"
+### Modern Development Workflow
 
-# Redis 상태 확인
-redis-cli ping
+```bash
+# Clone repository
+git clone https://github.com/kimdonghwi94/web-analyzer-mcp.git
+cd web-analyzer-mcp
+
+# Setup environment
+npm install              # Install Node.js dependencies
+npm run install         # Install Python dependencies
+
+# Development commands
+npm run build           # Full build with validation
+npm run dev            # Start development server
+npm test               # Test with MCP Inspector
+npm run lint           # Code formatting and linting
+npm run typecheck      # Type checking
+npm run clean          # Clean build artifacts
 ```
 
-## 🛠️ 개발 환경 설정
+### Traditional Python Development
 
-### 1. 개발 의존성 설치
-```powershell
-uv sync --dev
+```bash
+# Setup Python environment
+pip install -e .[dev]
+
+# Development commands
+python -m web_analyzer_mcp.server  # Start server
+python -m pytest tests/            # Run tests (if available)
+python -m black web_analyzer_mcp/  # Format code
+python -m mypy web_analyzer_mcp/   # Type checking
 ```
 
-### 2. 코드 품질 도구
-```powershell
-# 코드 포맷팅
-uv run black mcp_webanalyzer/
-
-# 린팅
-uv run flake8 mcp_webanalyzer/
-
-# 타입 체크
-uv run mypy mcp_webanalyzer/
-```
-
-### 3. 테스트 실행
-```powershell
-uv run pytest tests/
-```
-
-## 📖 추가 문서
-
-- [Architecture Guide](./architecture.md) - 시스템 아키텍처 상세 설명
-- [Deployment Guide](./REMOTE_DEPLOYMENT_GUIDE.md) - 프로덕션 배포 가이드
-- [Quick Start Guide](./quick-start.md) - 빠른 시작 가이드
-- [API Documentation](http://localhost:8080/docs) - 실시간 API 문서
-
-## 🤝 기여 방법
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -261,34 +308,36 @@ uv run pytest tests/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 라이선스
+## 📋 Roadmap
 
-이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+- [ ] Support for more content types (PDFs, videos)
+- [ ] Multi-language content extraction
+- [ ] Custom extraction rules
+- [ ] Caching for frequently accessed content
+- [ ] Webhook support for real-time updates
 
-## 🆘 지원 및 문제 해결
+## ⚠️ Limitations
 
-### 일반적인 문제들
+- Requires Chrome/Chromium for JavaScript-heavy sites
+- OpenAI API key needed for Q&A functionality
+- Rate limited to prevent abuse
+- Some sites may block automated access
 
-1. **포트 충돌**: 다른 애플리케이션이 8080 포트를 사용하는 경우
-   ```powershell
-   netstat -an | findstr :8080
-   ```
+## 📄 License
 
-2. **Redis 연결 실패**: Redis 서비스가 실행되지 않는 경우
-   ```powershell
-   redis-cli ping
-   ```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-3. **의존성 문제**: 가상 환경 재생성
-   ```powershell
-   rm -rf .venv
-   uv sync
-   ```
+## 🙋‍♂️ Support
 
-### 도움말
-- GitHub Issues: [프로젝트 Issues](https://github.com/your-username/mcp-webanalyzer/issues)
-- 문서: [전체 문서](./docs/)
-- 예제: [examples/](./examples/)
+- Create an issue for bug reports or feature requests
+- Contribute to discussions in the GitHub repository
+- Check the [documentation](https://github.com/kimdonghwi94/web-analyzer-mcp) for detailed guides
+
+## 🌟 Acknowledgments
+
+- Built with [FastMCP](https://github.com/jlowin/fastmcp) framework
+- Inspired by HTMLRAG techniques for web content processing
+- Thanks to the MCP community for feedback and contributions
 
 ---
 
