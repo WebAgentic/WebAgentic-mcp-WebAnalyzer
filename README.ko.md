@@ -31,74 +31,40 @@
 ## 📦 설치
 
 ### 사전 요구사항
-- Python 3.10+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (Python 패키지 매니저)
 - Chrome/Chromium 브라우저 (Selenium용)
 - OpenAI API 키 (Q&A 기능용)
 
-### 패키지 설치
+### 🚀 uv로 빠른 시작 (권장)
 
 ```bash
-pip install web-analyzer-mcp
-```
-
-### 소스에서 설치
-
-```bash
+# 저장소 클론
 git clone https://github.com/kimdonghwi94/web-analyzer-mcp.git
 cd web-analyzer-mcp
-pip install -e .
+
+# uv로 직접 실행 (의존성 자동 설치)
+uv run mcp-webanalyzer
 ```
 
-## ⚙️ 설정
+# IDE/에디터 연동
 
-### 환경 변수
-
-`.env` 파일을 생성하거나 환경 변수를 설정하세요:
-
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-### IDE/에디터 연동
 
 <details>
-<summary><b>Claude Desktop</b></summary>
+<summary><b>Install Claude Desktop</b></summary>
 
-Claude Desktop 설정 파일에 추가하세요:
-
-**Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Linux**: `~/.config/Claude/claude_desktop_config.json`
+Claude Desktop_config.json 파일에 추가하세요. 자세한 내용은 [Claude Desktop MCP 문서](https://modelcontextprotocol.io/quickstart/user)를 참조하세요.
 
 ```json
 {
   "mcpServers": {
     "web-analyzer": {
-      "command": "python",
-      "args": ["-m", "web_analyzer_mcp.server"],
-      "env": {
-        "OPENAI_API_KEY": "your_openai_api_key_here",
-        "OPENAI_MODEL": "gpt-3.5-turbo"
-      }
-    }
-  }
-}
-```
-
-*참고: `OPENAI_MODEL`은 선택사항입니다 - 지정하지 않으면 gpt-3.5-turbo가 기본값*
-</details>
-
-<details>
-<summary><b>Cursor IDE</b></summary>
-
-Cursor 설정에 추가하세요 (`File > Preferences > Settings > Extensions > MCP`):
-
-```json
-{
-  "mcp.servers": {
-    "web-analyzer": {
-      "command": "python",
-      "args": ["-m", "web_analyzer_mcp.server"],
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/web-analyzer-mcp",
+        "run", 
+        "mcp-webanalyzer"
+      ],
       "env": {
         "OPENAI_API_KEY": "your_openai_api_key_here",
         "OPENAI_MODEL": "gpt-4"
@@ -108,84 +74,74 @@ Cursor 설정에 추가하세요 (`File > Preferences > Settings > Extensions > 
 }
 ```
 
-*참고: `OPENAI_MODEL`은 선택사항입니다 - 지정하지 않으면 gpt-3.5-turbo가 기본값*
 </details>
 
 <details>
-<summary><b>Claude Code (VS Code 확장)</b></summary>
+<summary><b>Install Claude Code (VS Code 확장)</b></summary>
 
-VS Code settings.json에 추가하세요:
+Claude Code CLI를 사용하여 서버를 추가하세요:
+
+```bash
+claude mcp add web-analyzer -e OPENAI_API_KEY=your_api_key_here -e OPENAI_MODEL=gpt-4 -- uv --directory /path/to/web-analyzer-mcp run mcp-webanalyzer
+```
+</details>
+
+<details>
+<summary><b>Install Cursor IDE</b></summary>
+
+Cursor 설정에 추가하세요 (`File > Preferences > Settings > Extensions > MCP`):
 
 ```json
 {
-  "claude-code.mcpServers": {
+  "mcpServers": {
     "web-analyzer": {
-      "command": "python",
-      "args": ["-m", "web_analyzer_mcp.server"],
-      "cwd": "${workspaceFolder}/web-analyzer-mcp",
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/web-analyzer-mcp",
+        "run", 
+        "mcp-webanalyzer"
+      ],
       "env": {
         "OPENAI_API_KEY": "your_openai_api_key_here",
-        "OPENAI_MODEL": "gpt-4-turbo"
+        "OPENAI_MODEL": "gpt-4"
       }
     }
   }
 }
 ```
-
-*참고: `OPENAI_MODEL`은 선택사항입니다 - 지정하지 않으면 gpt-3.5-turbo가 기본값*
 </details>
 
 <details>
-<summary><b>PyCharm (MCP 플러그인 사용)</b></summary>
+<summary><b>Install JetBrains AI Assistant</b></summary>
 
-PyCharm에서 실행 구성 생성:
+자세한 내용은 [JetBrains AI Assistant 문서](https://www.jetbrains.com/help/idea/ai-assistant.html)를 참조하세요.
 
-1. `Run > Edit Configurations`로 이동
-2. 새 Python 구성 추가:
-   - **Script path**: `/path/to/web_analyzer_mcp/server.py`
-   - **Parameters**: (비워둠)
-   - **Environment variables**:
-     ```
-     OPENAI_API_KEY=your_openai_api_key_here
-     OPENAI_MODEL=gpt-4o
-     ```
-   - **Working directory**: `/path/to/web-analyzer-mcp`
+1. JetBrains IDE에서 **Settings** → **Tools** → **AI Assistant** → **Model Context Protocol (MCP)**로 이동
+2. **+ Add** 클릭
+3. 대화상자 왼쪽 상단의 **Command**를 클릭하고 목록에서 **As JSON** 옵션 선택
+4. 다음 설정을 추가하고 **OK** 클릭:
 
-*참고: `OPENAI_MODEL`은 선택사항입니다 - 지정하지 않으면 gpt-3.5-turbo가 기본값*
-
-또는 외부 도구 구성 사용:
-```xml
-<tool name="Web Analyzer MCP" description="Web Analyzer MCP 서버 시작" showInMainMenu="false" showInEditor="false" showInProject="false" showInSearchPopup="false">
-  <exec>
-    <option name="COMMAND" value="python" />
-    <option name="PARAMETERS" value="-m web_analyzer_mcp.server" />
-    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
-  </exec>
-</tool>
+```json
+{
+  "mcpServers": {
+    "web-analyzer": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/web-analyzer-mcp",
+        "run", 
+        "mcp-webanalyzer"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "your_openai_api_key_here",
+        "OPENAI_MODEL": "gpt-4"
+      }
+    }
+  }
+}
 ```
 </details>
-
-## 🔨 사용 예시
-
-### 기본 웹 콘텐츠 추출
-
-```python
-# 웹페이지에서 깔끔한 마크다운 추출
-result = url_to_markdown("https://example.com/article")
-print(result)
-```
-
-### 웹 콘텐츠 Q&A
-
-```python
-# 웹페이지 내용에 대한 질문
-answer = web_content_qna(
-    url="https://example.com/documentation", 
-    question="이 제품의 주요 기능은 무엇인가요?"
-)
-print(answer)
-```
-
 
 ## 🎛️ 도구 설명
 
@@ -246,36 +202,38 @@ web-analyzer-mcp/
 
 ## 🛠️ 개발 환경
 
-### 현대적인 개발 워크플로우
+### uv를 사용한 현대적인 개발
 
 ```bash
 # 저장소 클론
 git clone https://github.com/kimdonghwi94/web-analyzer-mcp.git
 cd web-analyzer-mcp
 
-# 환경 설정
-npm install              # Node.js 의존성 설치
-npm run install         # Python 의존성 설치
-
 # 개발 명령어
-npm run build           # 검증을 포함한 전체 빌드
-npm run dev            # 개발 서버 시작
-npm test               # MCP Inspector로 테스트
-npm run lint           # 코드 포맷팅 및 린팅
-npm run typecheck      # 타입 체크
-npm run clean          # 빌드 아티팩트 정리
+uv run mcp-webanalyzer     # 개발 서버 시작
+uv run python -m pytest   # 테스트 실행
+uv run ruff check .        # 코드 린팅
+uv run ruff format .       # 코드 포맷팅
+uv sync                    # 의존성 동기화
+
+# 개발 의존성 설치
+uv add --dev pytest ruff mypy
+
+# 프로덕션 빌드
+npm run build
 ```
 
-### 전통적인 Python 개발
+### 대안: 전통적인 Python 개발
 
 ```bash
-# Python 환경 설정
+# Python 환경 설정 (uv를 사용하지 않는 경우)
 pip install -e .[dev]
 
 # 개발 명령어
 python -m web_analyzer_mcp.server  # 서버 시작
-python -m pytest tests/            # 테스트 실행 (있는 경우)
-python -m black web_analyzer_mcp/  # 코드 포맷팅
+python -m pytest tests/            # 테스트 실행
+python -m ruff check .             # 코드 린팅
+python -m ruff format .            # 코드 포맷팅
 python -m mypy web_analyzer_mcp/   # 타입 체크
 ```
 

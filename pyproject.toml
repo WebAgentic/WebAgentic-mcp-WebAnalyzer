@@ -31,8 +31,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
-    "black>=23.0.0",
-    "flake8>=6.0.0",
+    "ruff>=0.1.0",
     "mypy>=1.0.0",
 ]
 
@@ -42,15 +41,19 @@ Repository = "https://github.com/kimdonghwi94/web-analyzer-mcp"
 Issues = "https://github.com/kimdonghwi94/web-analyzer-mcp/issues"
 
 [project.scripts]
-web-analyzer-mcp = "web_analyzer_mcp.server:main"
+mcp-webanalyzer = "web_analyzer_mcp.server:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.black]
+[tool.ruff]
 line-length = 100
-target-version = ['py310']
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
 
 [tool.mypy]
 python_version = "3.10"
